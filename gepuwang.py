@@ -2,6 +2,7 @@
 
 import requests
 import re
+import scrapy
 import json
 import os
 
@@ -24,7 +25,7 @@ def analyzeList(listContent): #分析列表数据
 
 def analyzeDetail(detailUrl):#分析详情页面
     sDetailContent = fetch_url(detailUrl)
-    print(sDetailContent)
+    print(detailUrl)
 
 def main():
     url = 'http://www.gepuwang.net/hexianpu/list_62_1.html'   #列表页
