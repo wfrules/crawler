@@ -9,6 +9,11 @@ import os
 session = requests.session()
 gDoMain = "http://www.gepuwang.net"
 
+from selenium import webdriver
+driver = webdriver.Chrome()
+driver.get("http://www.cheerby.com")
+
+
 def fetch_url(url):
     return session.get(url).content.decode('gbk')
 
