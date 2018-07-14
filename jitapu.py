@@ -23,6 +23,7 @@ def save_file(directory, filename, content):
     if not os.path.exists(sBaseDir):
         os.makedirs(sBaseDir)
     with open(sBaseDir + '/' + filename, 'w', encoding='utf8') as f:
+        f.write(content)
         print('已保存为:' + filename)
 
 def analyzeDetail(detailUrl):#分析详情页面
