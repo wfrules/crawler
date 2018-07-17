@@ -11,8 +11,8 @@ from db import gDb
 
 def main():
     try:
+        #gCommon.fetch_url("http://www.jitapu.com/listSong201504.aspx?id=7585&ArtistName=磯村由紀子")
         analyzeArtistIndex()
-        gDb.commit()
     finally:
         print("执行完毕")
 

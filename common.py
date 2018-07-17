@@ -1,12 +1,17 @@
 import os
 import sys
 import requests
+
+import string
+from urllib.parse import quote
+
 session = requests.session()
 gBaseDir = '../tab'
 
 class common:
     def fetch_url(self,url):#爬取网页数据
-        return session.get(url).content.decode('gbk')
+        sEncodedUrl = quote(url, safe=string.printable)
+        return session.get(sEncodedUrl).content.decode('gbk')
     def showExcept(self, title):#显示异常公用函数
         print(title)
         print(sys.exc_info()[0])

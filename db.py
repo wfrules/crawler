@@ -18,4 +18,12 @@ class db:
         self.cursor.execute(sql, params)
     def commit(self):#提交任务
         self.conn.commit()
+    def getSongIdByName(self, authorId, songName):
+        arrRet = self.nativeQry("select id from song where author_id=%s and sname=%s", (authorId, songName))
+        if len(arrRet) == 0:
+            self.nativeExec("insert song(sname,author_id)values(%s, %s)", (songName, authorId))
+            iSongId = self.cursor.lastrowid
+        else:
+            iSongId = arrRet[0]['id']
+        return iSongId
 gDb = db()
