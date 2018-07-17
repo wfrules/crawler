@@ -11,7 +11,6 @@ option = webdriver.ChromeOptions()
 option.add_argument('headless')
 driver = webdriver.Chrome(chrome_options=option)
 
-
 from db import gDb
 from consts import gConsts
 gCommon = common()
@@ -95,9 +94,13 @@ def analyzeArtistPage(detailUrl):
         gCommon.showExcept(detailUrl +  " 作者列表异常" + sSql)
 
 def analyzeArtistIndex():#逐个解析索引页
-    arrKeys = ['[0-9]','a' ,'b','c','d','e','f','g','j','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z']
-    for key in arrKeys:
-        analyzeArtistPage('http://www.jitapu.com/listArtist.aspx?path=' + key)
+    try:
+        arrKeys = ['[0-9]','a' ,'b','c','d','e','f','g','j','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z']
+        for key in arrKeys:
+            analyzeArtistPage('http://www.jitapu.com/listArtist.aspx?path=' + key)
+    finally:
+        if driver != None:
+            driver.quit()
 
 def crawlTabList(authorUrl, authorId):#分析歌曲列表
     try:
