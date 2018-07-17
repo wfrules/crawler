@@ -5,14 +5,13 @@ import scrapy
 import json
 from pyquery import PyQuery as pq
 from common import common
+from selenium import webdriver
+from db import gDb
 gCommon = common()
-
+gSiteId = 1
 gDoMain = "http://www.jitapu.com"
 
-from selenium import webdriver
-option = webdriver.ChromeOptions()
-option.add_argument('headless')
-driver = webdriver.Chrome(chrome_options=option)
+driver = None
 
 
 def analyzeAtrists(listUrl):#分析作者列表
@@ -57,13 +56,37 @@ def analyzeDetail(detailUrl):#分析详情页面 用selenium解决pre渲染的�
         gCommon.save_file(dicTab['author'], dicTab['song'] + '.txt', dicTab['content'])
     except:
         gCommon.showExcept(detailUrl + ' 曲谱详情异常')
+
 def main():
+    option = webdriver.ChromeOptions()
+    option.add_argument('headless')
+    driver = webdriver.Chrome(chrome_options=option)
     arrKeys = ['[0-9]','a' ,'b','c','d','e','f','g','j','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z']
     try:
         for key in arrKeys:
             analyzeAtrists('http://www.jitapu.com/listArtist.aspx?path=' + key)
     finally:
         driver.quit()
+
+def analyzeArtistPage(detailUrl):
+    try:
+        sListContent = gCommon.fetch_url(detailUrl)
+        objDoc = pq(sListContent)
+        arrLinks = objDoc("#dlListArtist a")
+        for i in range(len(arrLinks)):
+            sAuthor = arrLinks.eq(i).text()
+            sSql = "INSERT author(aname)SELECT %s FROM author \
+                WHERE NOT EXISTS(SELECT id FROM author WHERE \
+                aname = %s) limit 1"
+            gDb.nativeExec(sSql, (sAuthor, sAuthor))
+    except:
+        gCommon.showExcept(detailUrl +  " 作者列表异常" + sSql)
+
+def analyzeArtistIndex():#逐个解析索引页
+    arrKeys = ['[0-9]','a' ,'b','c','d','e','f','g','j','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z']
+    for key in arrKeys:
+        analyzeArtistPage('http://www.jitapu.com/listArtist.aspx?path=' + key)
+
 
 if __name__ == "__main__":
     main()
