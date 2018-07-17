@@ -108,7 +108,7 @@ def crawlTabList(authorUrl, authorId):#分析歌曲列表
             arrTds = arrTrs.eq(i).find('td')
             sSong = arrTds.eq(0).find('a').text()
             iSongId = gDb.getSongIdByName(authorId, sSong)
-            sLink = gDoMain + "/" + arrTds.eq(0).find('a').attr('href')
+            sLink = gDoMain + "/" + arrTds.eq(0).find('a').attr('href').lstrip().rstrip()
 
             sContent = ''
             if len(arrTrs) >= 4:
@@ -124,6 +124,12 @@ def crawlTabList(authorUrl, authorId):#分析歌曲列表
         gCommon.showExcept(authorUrl + ' 曲谱列表异常')
 
 def getTxtDetail(detailUrl):#分析详情页面 用selenium解决pre渲染的问题
+    # sHtml = gCommon.fetch_url(detailUrl)
+    # objDoc = pq(sHtml)
+    # sContent = objDoc("#txt pre").text()
+    # return sContent
+
+
     try:
         driver.get(detailUrl)
         domTxt = driver.find_element_by_id('txt')
