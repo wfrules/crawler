@@ -4,16 +4,9 @@ import re
 import scrapy
 import json
 from pyquery import PyQuery as pq
-from common import common
-from selenium import webdriver
-driver = None
-option = webdriver.ChromeOptions()
-option.add_argument('headless')
-driver = webdriver.Chrome(chrome_options=option)
-
 from db import gDb
 from consts import gConsts
-gCommon = common()
+from common import gCommon
 gSiteId = 1
 gDoMain = "http://www.jitapu.com"
 
@@ -48,11 +41,11 @@ def analyzeSongList(listUrl):#分析歌曲列表
 
 def analyzeDetail(detailUrl):#分析详情页面 用selenium解决pre渲染的问题
     try:
-        driver.get(detailUrl)
-        domTxt = driver.find_element_by_id('txt')
+        gCommon.chrome.get(detailUrl)
+        domTxt = gCommon.chrome.find_element_by_id('txt')
         sContent = domTxt.text
-        sAuthor = driver.find_element_by_css_selector('#tcbInfo a').text #这里选择的是第一个匹配元素
-        sSong = driver.find_element_by_css_selector('#tabControlBar h3').text #这里选择的是第一个匹配元素
+        sAuthor = gCommon.chrome.find_element_by_css_selector('#tcbInfo a').text #这里选择的是第一个匹配元素
+        sSong = gCommon.chrome.find_element_by_css_selector('#tabControlBar h3').text #这里选择的是第一个匹配元素
         dicTab = {
             'url': detailUrl,
             'song': sSong,
@@ -65,11 +58,8 @@ def analyzeDetail(detailUrl):#分析详情页面 用selenium解决pre渲染的�
 
 def main():
     arrKeys = ['[0-9]','a' ,'b','c','d','e','f','g','j','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z']
-    try:
-        for key in arrKeys:
-            analyzeAtrists('http://www.jitapu.com/listArtist.aspx?path=' + key)
-    finally:
-        driver.quit()
+    for key in arrKeys:
+        analyzeAtrists('http://www.jitapu.com/listArtist.aspx?path=' + key)
 
 def analyzeArtistPage(detailUrl):
     try:
@@ -89,18 +79,16 @@ def analyzeArtistPage(detailUrl):
                 gDb.nativeExec("delete from author_link where author_id=%s and site_id=%s", (iAuthorId, gSiteId))
             sSql = "insert author_link(author_id,site_id,url)values(%s,%s,%s)"
             gDb.nativeExec(sSql, (iAuthorId, gSiteId, sLink))
+            print('抓取'+ sAuthor + '中...')
             crawlTabList(sLink, iAuthorId)
     except:
         gCommon.showExcept(detailUrl +  " 作者列表异常" + sSql)
 
 def analyzeArtistIndex():#逐个解析索引页
-    try:
-        arrKeys = ['[0-9]','a' ,'b','c','d','e','f','g','j','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z']
-        for key in arrKeys:
-            analyzeArtistPage('http://www.jitapu.com/listArtist.aspx?path=' + key)
-    finally:
-        if driver != None:
-            driver.quit()
+    arrKeys = ['[0-9]','a' ,'b','c','d','e','f','g','j','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z']
+    for key in arrKeys:
+        analyzeArtistPage('http://www.jitapu.com/listArtist.aspx?path=' + key)
+
 
 def crawlTabList(authorUrl, authorId):#分析歌曲列表
     try:
@@ -131,11 +119,9 @@ def getTxtDetail(detailUrl):#分析详情页面 用selenium解决pre渲染的问
     # objDoc = pq(sHtml)
     # sContent = objDoc("#txt pre").text()
     # return sContent
-
-
     try:
-        driver.get(detailUrl)
-        domTxt = driver.find_element_by_id('txt')
+        gCommon.chrome.get(detailUrl)
+        domTxt = gCommon.chrome.find_element_by_id('txt')
         sContent = domTxt.text
         return sContent
     except:
