@@ -106,6 +106,10 @@ def crawlTabList(authorUrl, authorId):#分析歌曲列表
                 sType = arrTds.eq(3).text().lower()
                 if sType == "txt":
                     sContent = getTxtDetail(sLink)
+                elif sType == "img":
+                    sContent = getImgDetail(sLink)
+                elif sType == "gtp":
+                    sContent = getGtpDetail(sLink)
             else:
                 sType = 'unknown'
             iType = gConsts.tabTypes[sType]
@@ -113,6 +117,18 @@ def crawlTabList(authorUrl, authorId):#分析歌曲列表
         gDb.commit()
     except:
         gCommon.showExcept(authorUrl + ' 曲谱列表异常')
+
+def getGtpDetail(detailUrl):#分析图谱页面
+    sHtml = gCommon.fetch_url(detailUrl)
+    objDoc = pq(sHtml)
+    sContent = gDoMain + objDoc("#gtp form").attr('action').replace("../..", "")
+    return sContent
+
+def getImgDetail(detailUrl):#分析图谱页面
+    sHtml = gCommon.fetch_url(detailUrl)
+    objDoc = pq(sHtml)
+    sContent = gDoMain + objDoc("#imgTab img").attr('src').replace("../..", "")
+    return sContent
 
 def getTxtDetail(detailUrl):#分析详情页面 用selenium解决pre渲染的问题
     # sHtml = gCommon.fetch_url(detailUrl)
